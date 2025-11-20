@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit as st
 
 # 🎲 Ευρωπαϊκή ρουλέτα - φυσική διάταξη δεξιόστροφα
 ROULETTE_NUMBERS = [
@@ -10,7 +11,7 @@ ROULETTE_NUMBERS = [
 # 📝 Αρχικοποίηση Ιστορικού
 if 'history_right' not in st.session_state:
     st.session_state.history_right = []
-if 'history_left' not in st.session_state:
+if 'history_left' not in in st.session_state:
     st.session_state.history_left = []
     
 TOTAL_NUMBERS = len(ROULETTE_NUMBERS)

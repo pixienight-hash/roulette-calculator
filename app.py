@@ -7,7 +7,7 @@ ROULETTE_NUMBERS = [
     29, 7, 28, 12, 35, 3, 26
 ]
 
-# 📝 Ξεχωριστό Ιστορικό (χρησιμοποιούμε τη session_state για να διατηρείται το ιστορικό στο Streamlit)
+# 📝 Αρχικοποίηση Ιστορικού (χρησιμοποιούμε τη session_state για να διατηρείται το ιστορικό στο Streamlit)
 if 'history_right' not in st.session_state:
     st.session_state.history_right = []
 if 'history_left' not in st.session_state:
@@ -42,13 +42,4 @@ def calculate_right_shift(start, end):
 
 def calculate_left_shift(start, end):
     """Υπολογίζει την αριστερόστροφη μετατόπιση και ενημερώνει το ιστορικό."""
-    start_idx, end_idx, error = get_indices(start, end)
-    
-    if error:
-        entry = f"Αριστερά: {start} → {end} | {error}"
-        st.session_state.history_left.append(entry)
-        return error
-
-    distance = (start_idx - end_idx) % TOTAL_NUMBERS
-    
-    entry = f"Αριστερά: {start} → {end} | {distance} θέσεις"
+    start_idx, end_idx, error = get_

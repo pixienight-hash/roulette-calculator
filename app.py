@@ -66,6 +66,10 @@ st.markdown("""
 Εισάγετε ξεχωριστές αρχικές και τελικές θέσεις για τον υπολογισμό της **Δεξιόστροφης** και της **Αριστερόστροφης** μετατόπισης.
 """)
 
+# Δημιουργία μεταβλητών για τα αποτελέσματα
+right_result_placeholder = st.empty()
+left_result_placeholder = st.empty()
+
 col_right, col_left = st.columns(2)
 
 # --- 1. Εισαγωγές Δεξιόστροφης Μετατόπισης ---
@@ -73,30 +77,30 @@ with col_right:
     st.subheader("➡️ Δεξιόστροφη Μετατόπιση")
     start_right = st.number_input("Αρχική Θέση (Δεξιά):", key="start_r", min_value=0, max_value=36, value=0)
     end_right = st.number_input("Τελική Θέση (Δεξιά):", key="end_r", min_value=0, max_value=36, value=26)
+    
+    # ΝΕΟ ΚΟΥΜΠΙ ΓΙΑ ΤΟΝ ΔΕΞΙΟΣΤΡΟΦΟ ΥΠΟΛΟΓΙΣΜΟ
+    if st.button("Υπολόγισε Δεξιά", key="btn_right"):
+        result_right = calculate_right_shift(start_right, end_right)
+        st.success(f"**Δεξιόστροφη Μετατόπιση:** {start_right} → {end_right} : **{result_right} θέσεις**")
 
-# --- 2. Εισαγωγές Αριστερόστροφης Μετόπισης ---
+# --- 2. Εισαγωγές Αριστερόστροφης Μετατόπισης ---
 with col_left:
     st.subheader("⬅️ Αριστερόστροφη Μετατόπιση")
     start_left = st.number_input("Αρχική Θέση (Αριστερά):", key="start_l", min_value=0, max_value=36, value=0)
     end_left = st.number_input("Τελική Θέση (Αριστερά):", key="end_l", min_value=0, max_value=36, value=26)
 
+    # ΝΕΟ ΚΟΥΜΠΙ ΓΙΑ ΤΟΝ ΑΡΙΣΤΕΡΟΣΤΡΟΦΟ ΥΠΟΛΟΓΙΣΜΟ
+    if st.button("Υπολόγισε Αριστερά", key="btn_left"):
+        result_left = calculate_left_shift(start_left, end_left)
+        st.success(f"**Αριστερόστροφη Μετατόπιση:** {start_left} → {end_left} : **{result_left} θέσεις**")
 
-if st.button("Υπολόγισε τις Μετατοπίσεις"):
-    st.header("Αποτελέσματα")
-    
-    # Υπολογισμός Δεξιόστροφα
-    result_right = calculate_right_shift(start_right, end_right)
-    st.success(f"**Δεξιόστροφη Μετόπιση:** {start_right} → {end_right} : **{result_right} θέσεις**")
-    
-    # Υπολογισμός Αριστερόστροφα
-    result_left = calculate_left_shift(start_left, end_left)
-    st.success(f"**Αριστερόστροφη Μετόπιση:** {start_left} → {end_left} : **{result_left} θέσεις**")
 
 # --- Εμφάνιση Ιστορικού ---
 st.sidebar.header("📜 Ιστορικό")
 
 st.sidebar.subheader("Δεξιόστροφες")
 if st.session_state.history_right:
+    # Ταξινόμηση (Δεν χρειάζεται, αφού το history_right ενημερώνεται με τη σειρά που γίνονται οι υπολογισμοί)
     st.sidebar.text('\n'.join(st.session_state.history_right[-10:])) 
 else:
     st.sidebar.text('Δεν υπάρχουν καταχωρήσεις.')

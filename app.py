@@ -10,13 +10,13 @@ ROULETTE_NUMBERS = [
 # 📝 Αρχικοποίηση Ιστορικού
 if 'history_right' not in st.session_state:
     st.session_state.history_right = []
-    
-# Η ΔΙΟΡΘΩΣΗ ΕΙΝΑΙ ΕΔΩ: αφαιρέθηκε το διπλό 'in'
-if 'history_left' not in st.session_state: 
+if 'history_left' not in st.session_state:
     st.session_state.history_left = []
     
 TOTAL_NUMBERS = len(ROULETTE_NUMBERS)
 
+# ----------------- ΕΝΗΜΕΡΩΣΗ ΣΥΝΑΡΤΗΣΕΩΝ -----------------
+# Οι συναρτήσεις τώρα δέχονται 4 επιπλέον προαιρετικά ορίσματα για την ταχύτητα
 def get_indices(start, end):
     """Ελέγχει αν οι αριθμοί είναι έγκυροι και επιστρέφει τους δείκτες τους."""
     if start not in ROULETTE_NUMBERS or end not in ROULETTE_NUMBERS:
@@ -26,34 +26,46 @@ def get_indices(start, end):
     end_index = ROULETTE_NUMBERS.index(end)
     return start_index, end_index, None
 
-def calculate_right_shift(start, end):
+def format_speed(spin_speed, ball_speed):
+    """Δημιουργεί μια μορφοποιημένη συμβολοσειρά για την ταχύτητα."""
+    if spin_speed or ball_speed:
+        spin_str = f"Ρουλέτα: {spin_speed if spin_speed else '?'}"
+        ball_str = f"Μπίλια: {ball_speed if ball_speed else '?'}"
+        return f" ({spin_str}, {ball_str})"
+    return ""
+
+def calculate_right_shift(start, end, spin_speed="", ball_speed=""):
     """Υπολογίζει τη δεξιόστροφη μετατόπιση και ενημερώνει το ιστορικό."""
     start_idx, end_idx, error = get_indices(start, end)
     
+    speed_info = format_speed(spin_speed, ball_speed)
+    
     if error:
-        entry = f"Δεξιά: {start} → {end} | {error}"
+        entry = f"Δεξιά: {start} → {end} | {error} {speed_info}"
         st.session_state.history_right.append(entry)
         return error
 
     distance = (end_idx - start_idx) % TOTAL_NUMBERS
     
-    entry = f"Δεξιά: {start} → {end} | {distance} θέσεις"
+    entry = f"Δεξιά: {start} → {end} | {distance} θέσεις{speed_info}"
     st.session_state.history_right.append(entry)
     
     return distance
 
-def calculate_left_shift(start, end):
+def calculate_left_shift(start, end, spin_speed="", ball_speed=""):
     """Υπολογίζει την αριστερόστροφη μετατόπιση και ενημερώνει το ιστορικό."""
     start_idx, end_idx, error = get_indices(start, end)
     
+    speed_info = format_speed(spin_speed, ball_speed)
+
     if error:
-        entry = f"Αριστερά: {start} → {end} | {error}"
+        entry = f"Αριστερά: {start} → {end} | {error} {speed_info}"
         st.session_state.history_left.append(entry)
         return error
 
     distance = (start_idx - end_idx) % TOTAL_NUMBERS
     
-    entry = f"Αριστερά: {start} → {end} | {distance} θέσεις"
+    entry = f"Αριστερά: {start} → {end} | {distance} θέσεις{speed_info}"
     st.session_state.history_left.append(entry)
     
     return distance
@@ -63,12 +75,8 @@ def calculate_left_shift(start, end):
 st.title("🎲 Υπολογιστής Μετατόπισης Ρουλέτας")
 
 st.markdown("""
-Εισάγετε ξεχωριστές αρχικές και τελικές θέσεις για τον υπολογισμό της **Δεξιόστροφης** και της **Αριστερόστροφης** μετατόπισης.
+Εισάγετε τις θέσεις και προαιρετικά τις ταχύτητες περιστροφής (π.χ., 500 RPM, 3 δευτ.).
 """)
-
-# Δημιουργία μεταβλητών για τα αποτελέσματα
-right_result_placeholder = st.empty()
-left_result_placeholder = st.empty()
 
 col_right, col_left = st.columns(2)
 
@@ -78,9 +86,14 @@ with col_right:
     start_right = st.number_input("Αρχική Θέση (Δεξιά):", key="start_r", min_value=0, max_value=36, value=0)
     end_right = st.number_input("Τελική Θέση (Δεξιά):", key="end_r", min_value=0, max_value=36, value=26)
     
-    # ΝΕΟ ΚΟΥΜΠΙ ΓΙΑ ΤΟΝ ΔΕΞΙΟΣΤΡΟΦΟ ΥΠΟΛΟΓΙΣΜΟ
+    # ΝΕΑ ΠΡΟΑΙΡΕΤΙΚΑ ΠΕΔΙΑ ΤΑΧΥΤΗΤΑΣ
+    st.markdown("##### Προαιρετικές Ταχύτητες:")
+    spin_speed_r = st.text_input("Ταχύτητα Ρουλέτας (Δεξιά):", key="speed_r", help="Π.χ. 'Slow', '500 RPM', ή κενό")
+    ball_speed_r = st.text_input("Ταχύτητα Μπίλιας (Δεξιά):", key="ball_r", help="Π.χ. 'Fast', '3 sec', ή κενό")
+    
     if st.button("Υπολόγισε Δεξιά", key="btn_right"):
-        result_right = calculate_right_shift(start_right, end_right)
+        # Περνάμε τις ταχύτητες στη συνάρτηση
+        result_right = calculate_right_shift(start_right, end_right, spin_speed_r, ball_speed_r)
         st.success(f"**Δεξιόστροφη Μετατόπιση:** {start_right} → {end_right} : **{result_right} θέσεις**")
 
 # --- 2. Εισαγωγές Αριστερόστροφης Μετατόπισης ---
@@ -88,25 +101,16 @@ with col_left:
     st.subheader("⬅️ Αριστερόστροφη Μετατόπιση")
     start_left = st.number_input("Αρχική Θέση (Αριστερά):", key="start_l", min_value=0, max_value=36, value=0)
     end_left = st.number_input("Τελική Θέση (Αριστερά):", key="end_l", min_value=0, max_value=36, value=26)
+    
+    # ΝΕΑ ΠΡΟΑΙΡΕΤΙΚΑ ΠΕΔΙΑ ΤΑΧΥΤΗΤΑΣ
+    st.markdown("##### Προαιρετικές Ταχύτητες:")
+    spin_speed_l = st.text_input("Ταχύτητα Ρουλέτας (Αριστερά):", key="speed_l", help="Π.χ. 'Slow', '500 RPM', ή κενό")
+    ball_speed_l = st.text_input("Ταχύτητα Μπίλιας (Αριστερά):", key="ball_l", help="Π.χ. 'Fast', '3 sec', ή κενό")
 
-    # ΝΕΟ ΚΟΥΜΠΙ ΓΙΑ ΤΟΝ ΑΡΙΣΤΕΡΟΣΤΡΟΦΟ ΥΠΟΛΟΓΙΣΜΟ
     if st.button("Υπολόγισε Αριστερά", key="btn_left"):
-        result_left = calculate_left_shift(start_left, end_left)
+        # Περνάμε τις ταχύτητες στη συνάρτηση
+        result_left = calculate_left_shift(start_left, end_left, spin_speed_l, ball_speed_l)
         st.success(f"**Αριστερόστροφη Μετατόπιση:** {start_left} → {end_left} : **{result_left} θέσεις**")
 
 
-# --- Εμφάνιση Ιστορικού ---
-st.sidebar.header("📜 Ιστορικό")
-
-st.sidebar.subheader("Δεξιόστροφες")
-if st.session_state.history_right:
-    # Ταξινόμηση (Δεν χρειάζεται, αφού το history_right ενημερώνεται με τη σειρά που γίνονται οι υπολογισμοί)
-    st.sidebar.text('\n'.join(st.session_state.history_right[-10:])) 
-else:
-    st.sidebar.text('Δεν υπάρχουν καταχωρήσεις.')
-
-st.sidebar.subheader("Αριστερόστροφες")
-if st.session_state.history_left:
-    st.sidebar.text('\n'.join(st.session_state.history_left[-10:]))
-else:
-    st.sidebar.text('Δεν υπάρχουν καταχωρήσεις.')
+# --- Εμφ
